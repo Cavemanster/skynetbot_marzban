@@ -1,0 +1,40 @@
+{
+    "tariffs": [
+        {
+            "id": "free",
+            "name": "🆓 Пробный",
+            "price": 0,
+            "traffic_gb": 10,
+            "duration_days": 3,
+            "max_ips": 1,
+            "is_trial": true
+        },
+        {
+            "id": "basic",
+            "name": "🥉 Базовый",
+            "price": 100,
+            "traffic_gb": 100,
+            "duration_days": 30,
+            "max_ips": 2,
+            "is_trial": false
+        },
+        {
+            "id": "standard",
+            "name": "🥈 Стандарт",
+            "price": 200,
+            "traffic_gb": 500,
+            "duration_days": 30,
+            "max_ips": 5,
+            "is_trial": false
+        },
+        {
+            "id": "premium",
+            "name": "🥇 Премиум",
+            "price": 300,
+            "traffic_gb": 2048,
+            "duration_days": 30,
+            "max_ips": 10,
+            "is_trial": false
+        }
+    ]
+}

@@ -49,7 +49,7 @@ skynetbot_marzban/
 - Токен Telegram бота
 - Docker & Docker Compose (опционально)
 
-## Публикация на GitLab
+## Публикация на GitHub
 
 ### 1. Инициализация репозитория
 
@@ -78,25 +78,26 @@ git add .
 git commit -m "Initial commit: VPN bot for Marzban"
 ```
 
-### 5. Создание репозитория на GitLab
+### 5. Создание репозитория на GitHub
 
-1. Зайдите на [gitlab.com](https://gitlab.com) (или ваш корпоративный GitLab)
-2. Нажмите **New project** → **Create blank project**
-3. Введите имя проекта (например, `skynetbot_marzban`)
-4. Выберите видимость (Private/Recommended)
-5. Нажмите **Create project**
+1. Зайдите на [github.com](https://github.com)
+2. Нажмите **New** (или + → New repository)
+3. Введите имя: `skynetbot_marzban`
+4. Выберите видимость (Private/Public)
+5. **Не добавляйте** README/.gitignore (у вас уже есть)
+6. Нажмите **Create repository**
 
 ### 6. Привязка удалённого репозитория
 
 ```bash
-# Замените <your-username> на ваш логин GitLab
-git remote add origin https://gitlab.com/<your-username>/skynetbot_marzban.git
+# По SSH (рекомендуется):
+git remote add origin git@github.com:aleksejarhipockin/skynetbot_marzban.git
 
-# Или по SSH (рекомендуется):
-git remote add origin git@gitlab.com:<your-username>/skynetbot_marzban.git
+# Или по HTTPS:
+git remote add origin https://github.com/aleksejarhipockin/skynetbot_marzban.git
 ```
 
-### 7. Отправка на GitLab
+### 7. Отправка на GitHub
 
 ```bash
 # Переименуйте ветку в main (если нужно)
@@ -115,17 +116,26 @@ git commit -m "Описание изменений"
 git push
 ```
 
-### Настройка SSH-ключа для GitLab (рекомендуется)
+### Настройка SSH-ключа для GitHub
 
 ```bash
-# Генерация SSH-ключа
+# Генерация SSH-ключа (если нет)
 ssh-keygen -t ed25519 -C "your_email@example.com"
 
 # Просмотр публичного ключа
 cat ~/.ssh/id_ed25519.pub
 
-# Добавьте этот ключ в GitLab:
-# Settings → SSH Keys → Add new key
+# Добавьте ключ в GitHub:
+# Settings → SSH and GPG keys → New SSH key
+```
+
+### Проверка подключения
+
+```bash
+# Проверка SSH-подключения
+ssh -T git@github.com
+
+# Должно появиться: Hi username! You've successfully authenticated...
 ```
 
 ### Проверка статуса

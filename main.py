@@ -76,26 +76,7 @@ class Config:
         # Notification settings
         notify_hours = os.getenv("NOTIFY_BEFORE_EXPIRE_HOURS", "24,48,72")
         self.NOTIFY_BEFORE_EXPIRE_HOURS = [int(h) for h in notify_hours.split(",")]
-    
-    def to_dict(self) -> dict:
-        """Convert config to dictionary"""
-        return {
-            "BOT_TOKEN": self.BOT_TOKEN,
-            "ADMIN_USER_IDS": self.ADMIN_USER_IDS,
-            "MARZBAN_PANEL_URL": self.MARZBAN_PANEL_URL,
-            "MARZBAN_USERNAME": self.MARZBAN_USERNAME,
-            "MARZBAN_PASSWORD": self.MARZBAN_PASSWORD,
-            "MARZBAN_SUBSCRIPTION_URL_PREFIX": self.MARZBAN_SUBSCRIPTION_URL_PREFIX,
-            "PAYMENT_CARD_NUMBER": self.PAYMENT_CARD_NUMBER,
-            "PAYMENT_CARD_HOLDER": self.PAYMENT_CARD_HOLDER,
-            "SITE_URL": self.SITE_URL,
-            "TG_CHANNEL": self.TG_CHANNEL,
-            "SUPPORT_URL": self.SUPPORT_URL,
-            "REF_BONUS_DAYS": self.REF_BONUS_DAYS,
-            "VERIFY_SSL": self.VERIFY_SSL,
-            "NOTIFY_BEFORE_EXPIRE_HOURS": self.NOTIFY_BEFORE_EXPIRE_HOURS,
-        }
-    
+
     def validate(self) -> bool:
         """Validate required configuration"""
         required = ["BOT_TOKEN", "MARZBAN_PANEL_URL", "MARZBAN_USERNAME", "MARZBAN_PASSWORD"]
@@ -130,9 +111,9 @@ async def on_startup(bot: Bot, db: Database, marzban_client: MarzbanClient, conf
     # Initialize database
     await db.connect()
     logger.info("Database initialized")
-    
+
     # Start background tasks
-    await start_background_tasks(db, marzban_client, bot, config.to_dict())
+    await start_background_tasks(db, marzban_client, bot, config)
     
     # Set bot commands
     await bot.set_my_commands([
@@ -181,13 +162,13 @@ def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClien
     dp.include_router(admin_router)
     
     # Add middleware for config and database
-    @dp.middleware()
+    @dp.update.middleware()
     async def config_middleware(handler, event, data):
-        data["config"] = config.to_dict()
+        data["config"] = config
         data["db"] = db
         data["marzban_client"] = marzban_client
         return await handler(event, data)
-    
+
     # Admin filter
     @dp.message(F.from_user.id.map(lambda x: str(x) in config.ADMIN_USER_IDS))
     async def admin_only(message: types.Message):
@@ -233,12 +214,12 @@ async def main():
     # Store config in bot for access in handlers
     bot.config = config
     bot.marzban_client = marzban_client
-    
+
     # Create dispatcher
     dp = create_dispatcher(config, db, marzban_client)
-    
+
     # Store additional data in bot for handlers
-    dp["config"] = config.to_dict()
+    dp["config"] = config
     dp["db"] = db
     dp["marzban_client"] = marzban_client
     

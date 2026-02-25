@@ -204,7 +204,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data.startswith("pay_"))
-async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
+async def initiate_payment(callback: types.CallbackQuery, db: Database, config, state: FSMContext):
     """Initiate payment process"""
     tariff_id = callback.data.replace("pay_", "")
     
@@ -236,8 +236,8 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"💳 Оплата подписки\n\n"
         f"📦 Тариф: {tariff['name']}\n"
         f"💵 Сумма: {tariff['price']}₽\n\n"
-        f"💳 Карта: `{config.get('PAYMENT_CARD_NUMBER', '0000 0000 0000 0000')}`\n"
-        f"👤 Получатель: `{config.get('PAYMENT_CARD_HOLDER', 'CARD HOLDER')}`\n\n"
+        f"💳 Карта: `{config.PAYMENT_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
+        f"👤 Получатель: `{config.PAYMENT_CARD_HOLDER or 'CARD HOLDER'}`\n\n"
         f"⚠️ Важно: В комментарии к платежу укажите:\n"
         f"🔢 `{payment_comment}`\n\n"
         f"После оплаты нажмите ✅ Подтверждаю оплату"
@@ -415,22 +415,22 @@ async def check_status(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data == "referrals")
-async def show_referrals(callback: types.CallbackQuery, db: Database):
+async def show_referrals(callback: types.CallbackQuery, db: Database, config):
     """Show referral program"""
     telegram_id = callback.from_user.id
     referral_count = await db.get_referral_count(telegram_id)
-    
+
     # Generate referral link
     ref_link = f"https://t.me/{(await callback.bot.get_me()).username}?start=ref_{telegram_id}"
-    
+
     text = (
         "🎁 Реферальная программа\n\n"
         f"👥 Ваши рефералы: {referral_count}\n\n"
         f"Пригласите друзей и получите бонусные дни!\n"
-        f"🎁 +{callback.bot.config.REF_BONUS_DAYS} дней за каждого друга\n\n"
+        f"🎁 +{config.REF_BONUS_DAYS} дней за каждого друга\n\n"
         f"Ваша ссылка:\n`{ref_link}`"
     )
-    
+
     await callback.message.edit_text(
         text,
         reply_markup=get_referral_keyboard(ref_link),
@@ -449,7 +449,7 @@ async def copy_referral(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data == "help")
-async def show_help(callback: types.CallbackQuery, config: dict):
+async def show_help(callback: types.CallbackQuery, config):
     """Show help information"""
     text = (
         "ℹ️ Помощь\n\n"
@@ -470,18 +470,18 @@ async def show_help(callback: types.CallbackQuery, config: dict):
 
 
 @user_router.callback_query(F.data == "support")
-async def contact_support(callback: types.CallbackQuery, config: dict):
+async def contact_support(callback: types.CallbackQuery, config):
     """Contact support"""
-    support_url = config.get("SUPPORT_URL", "https://t.me/support")
+    support_url = config.SUPPORT_URL or "https://t.me/support"
     text = f"📞 Поддержка\n\nСвяжитесь с нами: {support_url}"
     await callback.message.answer(text)
     await callback.answer()
 
 
 @user_router.callback_query(F.data == "channel")
-async def show_channel(callback: types.CallbackQuery, config: dict):
+async def show_channel(callback: types.CallbackQuery, config):
     """Show channel link"""
-    channel_url = config.get("TG_CHANNEL", "https://t.me/channel")
+    channel_url = config.TG_CHANNEL or "https://t.me/channel"
     text = f"📢 Наш канал: {channel_url}"
     await callback.message.answer(text)
     await callback.answer()

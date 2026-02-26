@@ -156,7 +156,7 @@ async def cleanup_old_payments(db: Database, days_old: int = 30):
         logger.error(f"Error in cleanup_old_payments: {e}")
 
 
-async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, config: Dict[str, Any]):
+async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, config):
     """Run all periodic tasks"""
     while True:
         try:
@@ -185,7 +185,7 @@ async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, confi
         await asyncio.sleep(3600)
 
 
-async def start_background_tasks(db: Database, marzban_client: MarzbanClient, bot, config: Dict[str, Any]):
+async def start_background_tasks(db: Database, marzban_client: MarzbanClient, bot, config):
     """Start all background tasks"""
     logger.info("Starting background tasks...")
 

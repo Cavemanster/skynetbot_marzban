@@ -183,7 +183,7 @@ def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClien
     # Add middleware for config and database
     @dp.update.middleware()
     async def config_middleware(handler, event, data):
-        data["config"] = config.to_dict()
+        data["config"] = config
         data["db"] = db
         data["marzban_client"] = marzban_client
         return await handler(event, data)
@@ -238,7 +238,7 @@ async def main():
     dp = create_dispatcher(config, db, marzban_client)
 
     # Store additional data in bot for handlers
-    dp["config"] = config.to_dict()
+    dp["config"] = config
     dp["db"] = db
     dp["marzban_client"] = marzban_client
     

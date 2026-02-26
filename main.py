@@ -176,13 +176,14 @@ def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClien
     """Create and configure dispatcher"""
     dp = Dispatcher(storage=MemoryStorage())
     
+    # Add middleware for config and database (BEFORE including routers)
+    @dp.callback_query.middleware()
+    @dp.message.middleware()
+    async def config_middleware(handler, event, data):
+    
     # Include routers
     dp.include_router(user_router)
     dp.include_router(admin_router)
-    
-    # Add middleware for config and database
-    @dp.update.middleware()
-    async def config_middleware(handler, event, data):
         data["config"] = config
         data["db"] = db
         data["marzban_client"] = marzban_client

@@ -156,7 +156,7 @@ async def cleanup_old_payments(db: Database, days_old: int = 30):
         logger.error(f"Error in cleanup_old_payments: {e}")
 
 
-async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, config):
+async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, config: Dict[str, Any]):
     """Run all periodic tasks"""
     while True:
         try:
@@ -166,7 +166,7 @@ async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, confi
             await check_expired_subscriptions(db, marzban_client, bot)
 
             # Send expiration notifications
-            notify_hours = config.NOTIFY_BEFORE_EXPIRE_HOURS
+            notify_hours = config.get("NOTIFY_BEFORE_EXPIRE_HOURS", [24, 48, 72])
             for hours in notify_hours:
                 await send_expiration_notifications(db, marzban_client, bot, hours)
 
@@ -185,7 +185,7 @@ async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, confi
         await asyncio.sleep(3600)
 
 
-async def start_background_tasks(db: Database, marzban_client: MarzbanClient, bot, config):
+async def start_background_tasks(db: Database, marzban_client: MarzbanClient, bot, config: Dict[str, Any]):
     """Start all background tasks"""
     logger.info("Starting background tasks...")
 

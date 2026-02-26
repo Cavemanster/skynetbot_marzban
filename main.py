@@ -77,6 +77,25 @@ class Config:
         notify_hours = os.getenv("NOTIFY_BEFORE_EXPIRE_HOURS", "24,48,72")
         self.NOTIFY_BEFORE_EXPIRE_HOURS = [int(h) for h in notify_hours.split(",")]
 
+    def to_dict(self) -> dict:
+        """Convert config to dictionary"""
+        return {
+            "BOT_TOKEN": self.BOT_TOKEN,
+            "ADMIN_USER_IDS": self.ADMIN_USER_IDS,
+            "MARZBAN_PANEL_URL": self.MARZBAN_PANEL_URL,
+            "MARZBAN_USERNAME": self.MARZBAN_USERNAME,
+            "MARZBAN_PASSWORD": self.MARZBAN_PASSWORD,
+            "MARZBAN_SUBSCRIPTION_URL_PREFIX": self.MARZBAN_SUBSCRIPTION_URL_PREFIX,
+            "PAYMENT_CARD_NUMBER": self.PAYMENT_CARD_NUMBER,
+            "PAYMENT_CARD_HOLDER": self.PAYMENT_CARD_HOLDER,
+            "SITE_URL": self.SITE_URL,
+            "TG_CHANNEL": self.TG_CHANNEL,
+            "SUPPORT_URL": self.SUPPORT_URL,
+            "REF_BONUS_DAYS": self.REF_BONUS_DAYS,
+            "VERIFY_SSL": self.VERIFY_SSL,
+            "NOTIFY_BEFORE_EXPIRE_HOURS": self.NOTIFY_BEFORE_EXPIRE_HOURS,
+        }
+
     def validate(self) -> bool:
         """Validate required configuration"""
         required = ["BOT_TOKEN", "MARZBAN_PANEL_URL", "MARZBAN_USERNAME", "MARZBAN_PASSWORD"]
@@ -164,7 +183,7 @@ def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClien
     # Add middleware for config and database
     @dp.update.middleware()
     async def config_middleware(handler, event, data):
-        data["config"] = config
+        data["config"] = config.to_dict()
         data["db"] = db
         data["marzban_client"] = marzban_client
         return await handler(event, data)
@@ -219,7 +238,7 @@ async def main():
     dp = create_dispatcher(config, db, marzban_client)
 
     # Store additional data in bot for handlers
-    dp["config"] = config
+    dp["config"] = config.to_dict()
     dp["db"] = db
     dp["marzban_client"] = marzban_client
     

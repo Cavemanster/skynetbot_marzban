@@ -29,14 +29,14 @@ logger = logging.getLogger(__name__)
 admin_router = Router()
 
 
-async def is_admin(telegram_id: int, config) -> bool:
+async def is_admin(telegram_id: int, config: dict) -> bool:
     """Check if user is admin"""
-    admin_ids = config.ADMIN_USER_IDS
+    admin_ids = config.get("ADMIN_USER_IDS", [])
     return str(telegram_id) in admin_ids
 
 
 @admin_router.message(Command("admin"))
-async def cmd_admin(message: types.Message, config, db: Database):
+async def cmd_admin(message: types.Message, config: dict, db: Database):
     """Open admin panel"""
     if not await is_admin(message.from_user.id, config):
         return
@@ -481,7 +481,7 @@ async def process_broadcast(message: types.Message, state: FSMContext, db: Datab
 
 
 @admin_router.callback_query(F.data == "back_to_admin")
-async def back_to_admin(callback: types.CallbackQuery, config):
+async def back_to_admin(callback: types.CallbackQuery, config: dict):
     """Return to admin menu"""
     if not await is_admin(callback.from_user.id, config):
         return

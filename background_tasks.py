@@ -166,7 +166,7 @@ async def periodic_tasks(db: Database, marzban_client: MarzbanClient, bot, confi
             await check_expired_subscriptions(db, marzban_client, bot)
 
             # Send expiration notifications
-            notify_hours = config.get("NOTIFY_BEFORE_EXPIRE_HOURS", [24, 48, 72])
+            notify_hours = config.NOTIFY_BEFORE_EXPIRE_HOURS or [24, 48, 72]
             for hours in notify_hours:
                 await send_expiration_notifications(db, marzban_client, bot, hours)
 

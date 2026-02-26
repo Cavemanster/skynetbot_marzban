@@ -237,8 +237,8 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"💳 Оплата подписки\n\n"
         f"📦 Тариф: {tariff['name']}\n"
         f"💵 Сумма: {tariff['price']}₽\n\n"
-        f"💳 Карта: `{config.get('PAYMENT_CARD_NUMBER', '0000 0000 0000 0000')}`\n"
-        f"👤 Получатель: `{config.get('PAYMENT_CARD_HOLDER', 'CARD HOLDER')}`\n\n"
+        f"💳 Карта: `{config.PAYMENT_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
+        f"👤 Получатель: `{config.PAYMENT_CARD_HOLDER or 'CARD HOLDER'}`\n\n"
         f"⚠️ Важно: В комментарии к платежу укажите:\n"
         f"🔢 `{payment_comment}`\n\n"
         f"После оплаты нажмите ✅ Подтверждаю оплату"
@@ -428,7 +428,7 @@ async def show_referrals(callback: types.CallbackQuery, db: Database, config: di
         "🎁 Реферальная программа\n\n"
         f"👥 Ваши рефералы: {referral_count}\n\n"
         f"Пригласите друзей и получите бонусные дни!\n"
-        f"🎁 +{config.get('REF_BONUS_DAYS', 7)} дней за каждого друга\n\n"
+        f"🎁 +{config.REF_BONUS_DAYS or 7} дней за каждого друга\n\n"
         f"Ваша ссылка:\n`{ref_link}`"
     )
 
@@ -473,7 +473,7 @@ async def show_help(callback: types.CallbackQuery, config: dict):
 @user_router.callback_query(F.data == "support")
 async def contact_support(callback: types.CallbackQuery, config: dict):
     """Contact support"""
-    support_url = config.get("SUPPORT_URL", "https://t.me/support")
+    support_url = config.SUPPORT_URL or "https://t.me/support"
     text = f"📞 Поддержка\n\nСвяжитесь с нами: {support_url}"
     await callback.message.answer(text)
     await callback.answer()
@@ -482,7 +482,7 @@ async def contact_support(callback: types.CallbackQuery, config: dict):
 @user_router.callback_query(F.data == "channel")
 async def show_channel(callback: types.CallbackQuery, config: dict):
     """Show channel link"""
-    channel_url = config.get("TG_CHANNEL", "https://t.me/channel")
+    channel_url = config.TG_CHANNEL or "https://t.me/channel"
     text = f"📢 Наш канал: {channel_url}"
     await callback.message.answer(text)
     await callback.answer()

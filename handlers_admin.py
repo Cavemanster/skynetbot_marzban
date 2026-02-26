@@ -31,7 +31,7 @@ admin_router = Router()
 
 async def is_admin(telegram_id: int, config: dict) -> bool:
     """Check if user is admin"""
-    admin_ids = config.get("ADMIN_USER_IDS", [])
+    admin_ids = config.ADMIN_USER_IDS
     return str(telegram_id) in admin_ids
 
 

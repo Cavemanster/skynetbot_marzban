@@ -43,7 +43,7 @@ def generate_payment_comment() -> str:
     return f"VPN{random.randint(100000, 999999)}"
 
 
-@user_router.message(CommandStart)
+@user_router.message(Command("start"))
 async def cmd_start(message: types.Message, db: Database, state: FSMContext):
     """Handle /start command"""
     telegram_id = message.from_user.id
@@ -55,8 +55,9 @@ async def cmd_start(message: types.Message, db: Database, state: FSMContext):
     if not user:
         # Check for referral
         referred_by = None
-        if len(message.args) > 0 and message.args[0].startswith("ref_"):
-            referrer_id = int(message.args[0].replace("ref_", ""))
+        args = message.text.split()[1:] if len(message.text.split()) > 1 else []
+        if len(args) > 0 and args[0].startswith("ref_"):
+            referrer_id = int(args[0].replace("ref_", ""))
             if referrer_id != telegram_id:
                 referred_by = referrer_id
         

@@ -187,19 +187,22 @@ async def show_tariffs(callback: types.CallbackQuery, db: Database):
     
     text = "💰 Доступные тарифы:\n\n"
     for tariff in tariffs:
-        text += (
-            f"{tariff['name']}\n"
-            f"💵 Цена: {tariff['price']}₽\n"
-            f"📊 Трафик: {tariff['traffic_gb']} GB\n"
-            f"⏳ Срок: {tariff['duration_days']} дн.\n"
-            f"🔗 Устройств: {tariff['max_ips']}\n\n"
-        )
+        text += f"{tariff['name']}\n"
+        text += f"💵 Цена: {tariff['price']}₽\n"
+        text += f"⏳ Срок: {tariff['duration_days']} дн.\n"
+        text += f"🔗 Устройств: {tariff['max_ips']}\n"
+        if tariff.get('location'):
+            text += f"🌍 Локация: {tariff['location']}\n"
+        if tariff.get('is_trial'):
+            text += "✅ Пробный период\n"
+        text += "\n"
     
     await callback.message.edit_text(
         text,
         reply_markup=get_tariffs_keyboard(tariffs)
     )
     await callback.answer()
+
 
 
 @user_router.callback_query(F.data.startswith("tariff_"))

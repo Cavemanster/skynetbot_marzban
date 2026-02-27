@@ -221,7 +221,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
     text = (
         f"📦 Вы выбрали: {tariff['name']}\n\n"
         f"💵 Цена: {tariff['price']}₽\n"
-        f"📊 Трафик: {tariff['traffic_gb']} GB\n"
+        f"📊 Трафик: {tariff.get('traffic_gb', 'N/A')} GB\n"
         f"⏳ Срок: {tariff['duration_days']} дн.\n"
         f"🔗 Устройств: {tariff['max_ips']}\n\n"
     )
@@ -304,7 +304,7 @@ async def activate_subscription(
     # Create user in Marzban
     marzban_client: MarzbanClient = callback.bot.marzban_client
     
-    data_limit = tariff["traffic_gb"] * 1024 * 1024 * 1024  # Convert to bytes
+    data_limit = tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024  # Convert to bytes
     expire = marzban_client.calculate_expire_timestamp(tariff["duration_days"])
     
     try:
@@ -324,7 +324,7 @@ async def activate_subscription(
         telegram_id=telegram_id,
         tariff_id=tariff["id"],
         expires_at=expires_at,
-        traffic_limit_gb=tariff["traffic_gb"],
+        traffic_limit_gb=tariff.get('traffic_gb', 0),
         is_trial=is_trial
     )
     
@@ -335,7 +335,7 @@ async def activate_subscription(
         f"✅ Подписка активирована!\n\n"
         f"📦 Тариф: {tariff['name']}\n"
         f"⏳ Срок: {tariff['duration_days']} дн.\n"
-        f"📊 Трафик: {tariff['traffic_gb']} GB\n\n"
+        f"📊 Трафик: {tariff.get('traffic_gb', 'N/A')} GB\n\n"
         f"🔗 Ссылка для подключения:\n`{sub_link}`\n\n"
         f"Нажмите 🔗 Получить ссылку в любое время"
     )

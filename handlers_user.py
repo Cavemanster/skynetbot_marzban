@@ -227,14 +227,18 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
         f"🔗 Устройств: {tariff['max_ips']}\n\n"
     )
     
-    if tariff["price"] == 0:
+
+    
+    if tariff['price'] == 0:
         text += "🎁 Это бесплатный тариф!"
+        keyboard = get_trial_confirm_keyboard(tariff_id)
     else:
         text += "Нажмите 💳 Оплатить для продолжения"
+        keyboard = get_tariff_confirm_keyboard(tariff_id)
     
     await callback.message.edit_text(
         text,
-        reply_markup=get_tariff_confirm_keyboard(tariff_id)
+        reply_markup=keyboard
     )
     await callback.answer()
 

@@ -13,7 +13,7 @@ import os
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import StateFilter
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ErrorEvent
 
@@ -76,7 +76,7 @@ class Config:
         # Notification settings
         notify_hours = os.getenv("NOTIFY_BEFORE_EXPIRE_HOURS", "24,48,72")
         self.NOTIFY_BEFORE_EXPIRE_HOURS = [int(h) for h in notify_hours.split(",")]
-
+    
     def to_dict(self) -> dict:
         """Convert config to dictionary"""
         return {
@@ -95,7 +95,7 @@ class Config:
             "VERIFY_SSL": self.VERIFY_SSL,
             "NOTIFY_BEFORE_EXPIRE_HOURS": self.NOTIFY_BEFORE_EXPIRE_HOURS,
         }
-
+    
     def validate(self) -> bool:
         """Validate required configuration"""
         required = ["BOT_TOKEN", "MARZBAN_PANEL_URL", "MARZBAN_USERNAME", "MARZBAN_PASSWORD"]
@@ -130,7 +130,7 @@ async def on_startup(bot: Bot, db: Database, marzban_client: MarzbanClient, conf
     # Initialize database
     await db.connect()
     logger.info("Database initialized")
-
+    
     # Start background tasks
     await start_background_tasks(db, marzban_client, bot, config)
     
@@ -180,15 +180,15 @@ def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClien
     @dp.callback_query.middleware()
     @dp.message.middleware()
     async def config_middleware(handler, event, data):
-    
-    # Include routers
-    dp.include_router(user_router)
-    dp.include_router(admin_router)
         data["config"] = config
         data["db"] = db
         data["marzban_client"] = marzban_client
         return await handler(event, data)
-
+    
+    # Include routers
+    dp.include_router(user_router)
+    dp.include_router(admin_router)
+    
     # Admin filter
     @dp.message(F.from_user.id.map(lambda x: str(x) in config.ADMIN_USER_IDS))
     async def admin_only(message: types.Message):
@@ -231,14 +231,10 @@ async def main():
         verify_ssl=config.VERIFY_SSL
     )
     
-    # Store config in bot for access in handlers
-    bot.config = config
-    bot.marzban_client = marzban_client
-
     # Create dispatcher
     dp = create_dispatcher(config, db, marzban_client)
-
-    # Store additional data in bot for handlers
+    
+    # Store additional data in dispatcher
     dp["config"] = config
     dp["db"] = db
     dp["marzban_client"] = marzban_client

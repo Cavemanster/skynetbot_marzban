@@ -32,6 +32,43 @@ logger = logging.getLogger(__name__)
 user_router = Router()
 
 
+# Text handlers for ReplyKeyboard buttons (main menu)
+@user_router.message(F.text == "🔑 Мой VPN")
+async def my_vpn_text(message: types.Message, db: Database):
+    """Handle VPN button text message"""
+    telegram_id = message.from_user.id
+    subscription = await db.get_active_subscription(telegram_id)
+    from keyboards import get_my_vpn_keyboard, get_main_keyboard
+    if subscription:
+        text = "🔑 Ваш VPN\n\nСтатус: ✅ Активен\nТариф: " + subscription.get('tariff_name', 'N/A')
+        await message.answer(text, reply_markup=get_my_vpn_keyboard(True))
+    else:
+        await message.answer("🔑 Мой VPN\n\nУ вас нет активной подписки.", reply_markup=get_main_keyboard())
+
+@user_router.message(F.text == "💰 Тарифы")
+async def tariffs_text(message: types.Message, db: Database):
+    """Handle Tariffs button text message"""
+    from keyboards import get_main_keyboard
+    await message.answer("💰 Тарифы\n\nЗагрузка тарифов...", reply_markup=get_main_keyboard())
+
+@user_router.message(F.text == "📊 Статус")
+async def status_text(message: types.Message, db: Database):
+    """Handle Status button text message"""
+    telegram_id = message.from_user.id
+    subscription = await db.get_active_subscription(telegram_id)
+    if subscription:
+        text = "📊 Статус\n\n✅ Активен\nТариф: " + subscription.get('tariff_name', 'N/A')
+        await message.answer(text)
+    else:
+        await message.answer("📊 Статус\n\nНет активной подписки")
+
+@user_router.message(F.text == "❓ Помощь")
+async def help_text(message: types.Message):
+    """Handle Help button text message"""
+    from keyboards import get_help_keyboard
+    await message.answer("❓ Помощь\n\nКак мы можем помочь?", reply_markup=get_help_keyboard())
+
+
 def generate_marzban_username(telegram_id: int) -> str:
     """Generate unique Marzban username"""
     random_suffix = ''.join(random.choices(string.ascii_lowercase, k=4))

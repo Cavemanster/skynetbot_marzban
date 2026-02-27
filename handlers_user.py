@@ -19,6 +19,7 @@ from keyboards import (
     get_main_keyboard,
     get_tariffs_keyboard,
     get_tariff_confirm_keyboard,
+    get_trial_confirm_keyboard,
     get_payment_confirm_keyboard,
     get_my_vpn_keyboard,
     get_referral_keyboard,
@@ -552,4 +553,27 @@ async def show_profile(callback: types.CallbackQuery, db: Database):
         reply_markup=get_back_keyboard(),
         parse_mode="Markdown"
     )
-    await callback.answer()
+    await callback.answer()@user_router.callback_query(F.data.startswith(trial_))
+async def activate_trial(callback: types.CallbackQuery, db: Database):
+    """Activate trial subscription"""
+    tariff_id = callback.data.replace(trial_, )
+    
+    with open(data/tarifs.json, r, encoding=utf-8) as f:
+        data = json.load(f)
+    
+    tariff = next((t for t in data['tariffs'] if t['id'] == tariff_id), None)
+    if not tariff:
+        await callback.answer("❌ Тариф не найден", show_alert=True)
+        return
+    
+    # Check if trial is available
+    has_used_trial = await db.has_used_trial(callback.from_user.id)
+    if has_used_trial:
+        await callback.answer("❌ Вы уже использовали пробный период", show_alert=True)
+        return
+    
+    # Activate the subscription
+    await activate_subscription(callback, db, tariff, is_trial=True)
+
+
+

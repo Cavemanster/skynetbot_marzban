@@ -42,6 +42,16 @@ def get_tariff_confirm_keyboard(tariff_id: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+
+
+def get_trial_confirm_keyboard(tariff_id: str) -> InlineKeyboardMarkup:
+    """Keyboard for confirming trial subscription"""
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🎁 Получить", callback_data=f"trial_{tariff_id}")
+    builder.button(text="↩️ Назад", callback_data="tariffs")
+    builder.adjust(2)
+    return builder.as_markup()
+
 def get_payment_confirm_keyboard(payment_id: int) -> InlineKeyboardMarkup:
     """Keyboard for confirming payment"""
     builder = InlineKeyboardBuilder()

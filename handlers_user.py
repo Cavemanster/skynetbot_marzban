@@ -222,18 +222,16 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
     text = (
         f"📦 Вы выбрали: {tariff['name']}\n\n"
         f"💵 Цена: {tariff['price']}₽\n"
-        f"📊 Трафик: {tariff.get('traffic_gb', 'N/A')} GB\n"
+        f"📊 Трафик: {tariff['traffic_gb']} GB\n"
         f"⏳ Срок: {tariff['duration_days']} дн.\n"
         f"🔗 Устройств: {tariff['max_ips']}\n\n"
     )
     
-
-    
-    if tariff['price'] == 0:
+    if tariff["price"] == 0:
         text += "🎁 Это бесплатный тариф!"
         keyboard = get_trial_confirm_keyboard(tariff_id)
     else:
-        text += "Нажмите 💳 Оплатить для продолжения"
+        text += "💳 Оплатить для продолжения"
         keyboard = get_tariff_confirm_keyboard(tariff_id)
     
     await callback.message.edit_text(
@@ -242,6 +240,27 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
     )
     await callback.answer()
 
+
+
+@user_router.callback_query(F.data.startswith("trial_"))
+async def activate_trial(callback: types.CallbackQuery, db: Database):
+    """Activate trial subscription"""
+    tariff_id = callback.data.replace("trial_", "")
+    
+    with open("data/tarifs.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    tariff = next((t for t in data["tariffs"] if t["id"] == tariff_id), None)
+    if not tariff:
+        await callback.answer("❌ Тариф не найден", show_alert=True)
+        return
+    
+    has_used_trial = await db.has_used_trial(callback.from_user.id)
+    if has_used_trial:
+        await callback.answer("❌ Вы уже использовали пробный период", show_alert=True)
+        return
+    
+    await activate_subscription(callback, db, tariff, is_trial=True)
 
 @user_router.callback_query(F.data.startswith("pay_"))
 async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
@@ -309,7 +328,7 @@ async def activate_subscription(
     # Create user in Marzban
     marzban_client: MarzbanClient = callback.bot.marzban_client
     
-    data_limit = tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024  # Convert to bytes
+    data_limit = tariff["traffic_gb"] * 1024 * 1024 * 1024  # Convert to bytes
     expire = marzban_client.calculate_expire_timestamp(tariff["duration_days"])
     
     try:
@@ -329,7 +348,7 @@ async def activate_subscription(
         telegram_id=telegram_id,
         tariff_id=tariff["id"],
         expires_at=expires_at,
-        traffic_limit_gb=tariff.get('traffic_gb', 0),
+        traffic_limit_gb=tariff["traffic_gb"],
         is_trial=is_trial
     )
     
@@ -340,7 +359,7 @@ async def activate_subscription(
         f"✅ Подписка активирована!\n\n"
         f"📦 Тариф: {tariff['name']}\n"
         f"⏳ Срок: {tariff['duration_days']} дн.\n"
-        f"📊 Трафик: {tariff.get('traffic_gb', 'N/A')} GB\n\n"
+        f"📊 Трафик: {tariff['traffic_gb']} GB\n\n"
         f"🔗 Ссылка для подключения:\n`{sub_link}`\n\n"
         f"Нажмите 🔗 Получить ссылку в любое время"
     )
@@ -557,27 +576,4 @@ async def show_profile(callback: types.CallbackQuery, db: Database):
         reply_markup=get_back_keyboard(),
         parse_mode="Markdown"
     )
-    await callback.answer()@user_router.callback_query(F.data.startswith(trial_))
-async def activate_trial(callback: types.CallbackQuery, db: Database):
-    """Activate trial subscription"""
-    tariff_id = callback.data.replace(trial_, )
-    
-    with open(data/tarifs.json, r, encoding=utf-8) as f:
-        data = json.load(f)
-    
-    tariff = next((t for t in data['tariffs'] if t['id'] == tariff_id), None)
-    if not tariff:
-        await callback.answer("❌ Тариф не найден", show_alert=True)
-        return
-    
-    # Check if trial is available
-    has_used_trial = await db.has_used_trial(callback.from_user.id)
-    if has_used_trial:
-        await callback.answer("❌ Вы уже использовали пробный период", show_alert=True)
-        return
-    
-    # Activate the subscription
-    await activate_subscription(callback, db, tariff, is_trial=True)
-
-
-
+    await callback.answer()

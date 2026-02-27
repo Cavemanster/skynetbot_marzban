@@ -243,7 +243,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data.startswith("trial_"))
-async def activate_trial(callback: types.CallbackQuery, db: Database, data: dict):
+async def activate_trial(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
     """Activate trial subscription"""
     tariff_id = callback.data.replace("trial_", "")
     
@@ -263,7 +263,7 @@ async def activate_trial(callback: types.CallbackQuery, db: Database, data: dict
     await activate_subscription(callback, db, tariff, callback.data["marzban_client"], is_trial=True)
 
 @user_router.callback_query(F.data.startswith("pay_"))
-async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext, data: dict):
+async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext, marzban_client: MarzbanClient):
     """Initiate payment process"""
     tariff_id = callback.data.replace("pay_", "")
     

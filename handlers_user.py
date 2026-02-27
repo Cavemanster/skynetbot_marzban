@@ -45,12 +45,6 @@ async def my_vpn_text(message: types.Message, db: Database):
     else:
         await message.answer("🔑 Мой VPN\n\nУ вас нет активной подписки.", reply_markup=get_main_keyboard())
 
-@user_router.message(F.text == "💰 Тарифы")
-async def tariffs_text(message: types.Message, db: Database):
-    """Handle Tariffs button text message"""
-    from keyboards import get_main_keyboard
-    await message.answer("💰 Тарифы\n\nЗагрузка тарифов...", reply_markup=get_main_keyboard())
-
 @user_router.message(F.text == "📊 Статус")
 async def status_text(message: types.Message, db: Database):
     """Handle Status button text message"""

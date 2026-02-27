@@ -7,9 +7,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 
-def get_main_keyboard() -> ReplyKeyboardMarkup:
+def get_main_keyboard() -> InlineKeyboardMarkup:
     """Main menu keyboard for users"""
-    builder = ReplyKeyboardBuilder()
+    builder = InlineKeyboardBuilder()
     builder.button(text="🔑 Мой VPN", callback_data="my_vpn")
     builder.button(text="💰 Тарифы", callback_data="tariffs")
     builder.button(text="📊 Статус", callback_data="status")
@@ -17,7 +17,7 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     builder.button(text="ℹ️ Помощь", callback_data="help")
     builder.button(text="👤 Профиль", callback_data="profile")
     builder.adjust(2, 2, 2)
-    return builder.as_markup(resize_keyboard=True)
+    return builder.as_markup()
 
 
 def get_tariffs_keyboard(tariffs: list) -> InlineKeyboardMarkup:

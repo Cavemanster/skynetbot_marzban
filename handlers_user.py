@@ -326,7 +326,7 @@ async def activate_subscription(
         return
     
     # Create user in Marzban
-    marzban_client: MarzbanClient = callback.bot.marzban_client
+    marzban_client: MarzbanClient = callback.data["marzban_client"]
     
     data_limit = tariff.get("traffic_gb", 0) * 1024 * 1024 * 1024  # Convert to bytes
     expire = marzban_client.calculate_expire_timestamp(tariff["duration_days"])
@@ -405,7 +405,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    marzban_client: MarzbanClient = callback.bot.marzban_client
+    marzban_client: MarzbanClient = callback.data["marzban_client"]
     sub_link = marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
@@ -429,7 +429,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    marzban_client: MarzbanClient = callback.bot.marzban_client
+    marzban_client: MarzbanClient = callback.data["marzban_client"]
     sub_link = marzban_client.get_subscription_link(user["marzban_username"])
     
     # Send QR code

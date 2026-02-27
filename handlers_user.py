@@ -332,13 +332,7 @@ async def activate_subscription(
     expire = marzban_client.calculate_expire_timestamp(tariff["duration_days"])
     
     try:
-        # Remove user if exists
-        try:
-            await marzban_client.remove_user(user["marzban_username"])
-        except:
-            pass
-        
-        await marzban_client.create_user(
+        await marzban_client.modify_user(
             username=user["marzban_username"],
             data_limit=data_limit,
             expire=expire,

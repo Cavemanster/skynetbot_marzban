@@ -260,7 +260,7 @@ async def activate_trial(callback: types.CallbackQuery, db: Database, marzban_cl
         await callback.answer("❌ Вы уже использовали пробный период", show_alert=True)
         return
     
-    await activate_subscription(callback, db, tariff, callback.data["marzban_client"], is_trial=True)
+    await activate_subscription(callback, db, tariff, marzban_client, is_trial=True)
 
 @user_router.callback_query(F.data.startswith("pay_"))
 async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext, marzban_client: MarzbanClient):
@@ -277,7 +277,7 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
     
     # Free tariff - activate immediately
     if tariff["price"] == 0:
-        await activate_subscription(callback, db, tariff, callback.data["marzban_client"], is_trial=tariff["is_trial"])
+        await activate_subscription(callback, db, tariff, marzban_client, is_trial=tariff["is_trial"])
         return
     
     # Generate payment comment
@@ -327,7 +327,6 @@ async def activate_subscription(
         return
     
     # Create user in Marzban
-    marzban_client: MarzbanClient = callback.data["marzban_client"]
     
     data_limit = tariff.get("traffic_gb", 0) * 1024 * 1024 * 1024  # Convert to bytes
     expire = marzban_client.calculate_expire_timestamp(tariff["duration_days"])
@@ -406,7 +405,6 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    marzban_client: MarzbanClient = callback.data["marzban_client"]
     sub_link = marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
@@ -430,7 +428,6 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    marzban_client: MarzbanClient = callback.data["marzban_client"]
     sub_link = marzban_client.get_subscription_link(user["marzban_username"])
     
     # Send QR code

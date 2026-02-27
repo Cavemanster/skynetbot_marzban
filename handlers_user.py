@@ -243,7 +243,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data.startswith("trial_"))
-async def activate_trial(callback: types.CallbackQuery, db: Database):
+async def activate_trial(callback: types.CallbackQuery, db: Database, data: dict):
     """Activate trial subscription"""
     tariff_id = callback.data.replace("trial_", "")
     
@@ -260,10 +260,10 @@ async def activate_trial(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Вы уже использовали пробный период", show_alert=True)
         return
     
-    await activate_subscription(callback, db, tariff, is_trial=True)
+    await activate_subscription(callback, db, tariff, callback.data["marzban_client"], is_trial=True)
 
 @user_router.callback_query(F.data.startswith("pay_"))
-async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
+async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext, data: dict):
     """Initiate payment process"""
     tariff_id = callback.data.replace("pay_", "")
     
@@ -277,7 +277,7 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
     
     # Free tariff - activate immediately
     if tariff["price"] == 0:
-        await activate_subscription(callback, db, tariff, is_trial=tariff["is_trial"])
+        await activate_subscription(callback, db, tariff, callback.data["marzban_client"], is_trial=tariff["is_trial"])
         return
     
     # Generate payment comment
@@ -315,6 +315,7 @@ async def activate_subscription(
     callback: types.CallbackQuery,
     db: Database,
     tariff: dict,
+    marzban_client: MarzbanClient,
     is_trial: bool = False
 ):
     """Activate subscription for user"""

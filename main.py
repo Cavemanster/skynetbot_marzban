@@ -23,6 +23,7 @@ load_dotenv()
 # Import modules
 from database import Database
 from marzban_client import MarzbanClient, AuthenticationError
+import globals
 from handlers_user import user_router
 from handlers_admin import admin_router, is_admin
 from background_tasks import start_background_tasks
@@ -117,7 +118,7 @@ async def on_startup(bot: Bot, db: Database, marzban_client: MarzbanClient, conf
     logger.info("Bot starting up...")
     
     # Store marzban_client in bot for handlers
-    bot.marzban_client = marzban_client
+    globals._marzban_client = marzban_client
     
     # Test Marzban connection
     try:

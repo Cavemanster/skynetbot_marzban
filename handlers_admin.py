@@ -1,8 +1,8 @@
 """
-    marzban_client = callback.bot.marzban_client
-    marzban_client = callback.bot.marzban_client
-    marzban_client = callback.bot.marzban_client
-    marzban_client = callback.bot.marzban_client
+    marzban_client = data.get("marzban_client")
+    marzban_client = data.get("marzban_client")
+    marzban_client = data.get("marzban_client")
+    marzban_client = data.get("marzban_client")
 Admin Handlers Module
 Handles all admin panel commands and callbacks
 """
@@ -27,6 +27,7 @@ from keyboards import (
     get_broadcast_keyboard,
 )
 from states import AdminStates, PaymentStates
+
 
 logger = logging.getLogger(__name__)
 
@@ -54,22 +55,22 @@ async def cmd_admin(message: types.Message, config: dict, db: Database):
 
 
 @admin_router.callback_query(F.data == "admin_stats")
-async def admin_statistics(callback: types.CallbackQuery, db: Database):
+async def admin_statistics(callback: types.CallbackQuery, db: Database, **data):
     """Show bot statistics"""
-    marzban_client = callback.bot.marzban_client
+    marzban_client = data.get("marzban_client")
     try:
         # Get bot stats from database
         stats = await db.get_statistics()
         
         # Get Marzban system stats
         try:
-            marzban_stats = await marzban_client.get_system_stats()
+            marzban_stats = await data.get('marzban_client').get_system_stats()
             marzban_text = (
                 f"\n🖥 Marzban Статистика:\n"
                 f"👥 Пользователей: {marzban_stats.get('total_user', 0)}\n"
                 f"✅ Активных: {marzban_stats.get('active_users', 0)}\n"
-                f"💾 Использовано: {marzban_client.format_traffic(marzban_stats.get('users_used', 0))}\n"
-                f"🌐 Всего: {marzban_client.format_traffic(marzban_stats.get('users_total', 0))}\n"
+                f"💾 Использовано: {data.get('marzban_client').format_traffic(marzban_stats.get('users_used', 0))}\n"
+                f"🌐 Всего: {data.get('marzban_client').format_traffic(marzban_stats.get('users_total', 0))}\n"
             )
         except Exception as e:
             logger.error(f"Failed to get Marzban stats: {e}")
@@ -157,9 +158,9 @@ async def admin_view_payment(callback: types.CallbackQuery, db: Database):
 
 
 @admin_router.callback_query(F.data.startswith("admin_approve_"))
-async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
+async def admin_approve_payment(callback: types.CallbackQuery, db: Database, **data):
     """Approve payment"""
-    marzban_client = callback.bot.marzban_client
+    marzban_client = data.get("marzban_client")
     payment_id = int(callback.data.replace("admin_approve_", ""))
     payment = await db.get_payment(payment_id)
     
@@ -192,23 +193,23 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
     try:
         if existing_sub:
             # Extend existing subscription
-            marzban_user = await marzban_client.get_user(user["marzban_username"])
-            new_expire = marzban_client.calculate_expire_timestamp(
+            marzban_user = await data.get('marzban_client').get_user(user["marzban_username"])
+            new_expire = data.get('marzban_client').calculate_expire_timestamp(
                 tariff["duration_days"]
             )
             new_traffic = marzban_user.get("data_limit", 0) + (tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024)
             
-            await marzban_client.modify_user(
+            await data.get('marzban_client').modify_user(
                 user["marzban_username"],
                 data_limit=new_traffic,
                 expire=new_expire
             )
         else:
             # Create new user
-            await marzban_client.create_user(
+            await data.get('marzban_client').create_user(
                 username=user["marzban_username"],
                 data_limit=tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024,
-                expire=marzban_client.calculate_expire_timestamp(tariff["duration_days"])
+                expire=data.get('marzban_client').calculate_expire_timestamp(tariff["duration_days"])
             )
         
         # Add subscription to database
@@ -221,7 +222,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
         )
         
         # Notify user
-        sub_link = marzban_client.get_subscription_link(user["marzban_username"])
+        sub_link = data.get('marzban_client').get_subscription_link(user["marzban_username"])
         try:
             await callback.bot.send_message(
                 payment["telegram_id"],
@@ -368,7 +369,7 @@ async def process_search(message: types.Message, state: FSMContext, db: Database
 
 
 @admin_router.callback_query(F.data.startswith("admin_user_info_"))
-async def admin_user_info(callback: types.CallbackQuery, db: Database):
+async def admin_user_info(callback: types.CallbackQuery, db: Database, **data):
     """Show detailed user info"""
     telegram_id = int(callback.data.replace("admin_user_info_", ""))
     user = await db.get_user(telegram_id)
@@ -379,9 +380,9 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database):
     
     # Get info from Marzban
     try:
-        marzban_user = await marzban_client.get_user(user["marzban_username"])
-        traffic_used = marzban_client.format_traffic(marzban_user.get("used_traffic", 0))
-        traffic_limit = marzban_client.format_traffic(marzban_user.get("data_limit", 0))
+        marzban_user = await data.get('marzban_client').get_user(user["marzban_username"])
+        traffic_used = data.get('marzban_client').format_traffic(marzban_user.get("used_traffic", 0))
+        traffic_limit = data.get('marzban_client').format_traffic(marzban_user.get("data_limit", 0))
         status = marzban_user.get("status", "unknown")
         expire_date = datetime.fromtimestamp(marzban_user.get("expire", 0)) if marzban_user.get("expire") else "Never"
     except Exception as e:
@@ -408,9 +409,9 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database):
 
 
 @admin_router.callback_query(F.data.startswith("admin_user_ban_"))
-async def admin_user_ban(callback: types.CallbackQuery, db: Database):
+async def admin_user_ban(callback: types.CallbackQuery, db: Database, **data):
     """Ban user"""
-    marzban_client = callback.bot.marzban_client
+    marzban_client = data.get("marzban_client")
     telegram_id = int(callback.data.replace("admin_user_ban_", ""))
     user = await db.get_user(telegram_id)
     
@@ -430,7 +431,7 @@ async def admin_user_ban(callback: types.CallbackQuery, db: Database):
         await db.ban_user(telegram_id)
         # Disable user in Marzban
         try:
-            await marzban_client.modify_user(user["marzban_username"], status="disabled")
+            await data.get('marzban_client').modify_user(user["marzban_username"], status="disabled")
         except Exception as e:
             logger.error(f"Failed to disable Marzban user: {e}")
         text = f"🚫 Пользователь @{user['username']} забанен"

@@ -93,9 +93,9 @@ def get_help_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_admin_keyboard() -> ReplyKeyboardMarkup:
+def get_admin_keyboard() -> InlineKeyboardMarkup:
     """Admin menu keyboard"""
-    builder = ReplyKeyboardBuilder()
+    builder = InlineKeyboardBuilder()
     builder.button(text="📊 Статистика", callback_data="admin_stats")
     builder.button(text="💰 Платежи", callback_data="admin_payments")
     builder.button(text="👥 Пользователи", callback_data="admin_users")

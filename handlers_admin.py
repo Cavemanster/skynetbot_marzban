@@ -190,7 +190,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database, mar
             new_expire = marzban_client.calculate_expire_timestamp(
                 tariff["duration_days"]
             )
-            new_traffic = marzban_user.get("data_limit", 0) + (tariff["traffic_gb"] * 1024 * 1024 * 1024)
+            new_traffic = marzban_user.get("data_limit", 0) + (tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024)
             
             await marzban_client.modify_user(
                 user["marzban_username"],
@@ -201,7 +201,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database, mar
             # Create new user
             await marzban_client.create_user(
                 username=user["marzban_username"],
-                data_limit=tariff["traffic_gb"] * 1024 * 1024 * 1024,
+                data_limit=tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024,
                 expire=marzban_client.calculate_expire_timestamp(tariff["duration_days"])
             )
         
@@ -211,7 +211,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database, mar
             telegram_id=payment["telegram_id"],
             tariff_id=tariff["id"],
             expires_at=expires_at,
-            traffic_limit_gb=tariff["traffic_gb"]
+            traffic_limit_gb=tariff.get('traffic_gb', 0)
         )
         
         # Notify user
@@ -222,7 +222,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database, mar
                 f"✅ Ваша оплата одобрена!\n\n"
                 f"📦 Тариф: {tariff['name']}\n"
                 f"⏳ Срок: {tariff['duration_days']} дн.\n"
-                f"📊 Трафик: {tariff['traffic_gb']} GB\n\n"
+                f"📊 Трафик: {tariff.get('traffic_gb', 0)} GB\n\n"
                 f"🔗 Ссылка: `{sub_link}`",
                 parse_mode="Markdown"
             )

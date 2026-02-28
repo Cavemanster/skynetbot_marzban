@@ -67,7 +67,7 @@ async def help_text(message: types.Message):
 def generate_marzban_username(telegram_id: int) -> str:
     """Generate unique Marzban username"""
     random_suffix = ''.join(random.choices(string.ascii_lowercase, k=4))
-    return f"user_{telegram_id}_{random_suffix}@vpn"
+    return f"user_{telegram_id}_{random_suffix}"
 
 
 def generate_payment_comment() -> str:
@@ -396,7 +396,7 @@ async def confirm_payment(callback: types.CallbackQuery, db: Database, state: FS
 
 
 @user_router.callback_query(F.data == "get_link")
-async def get_subscription_link(callback: types.CallbackQuery, db: Database):
+async def get_subscription_link(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
     """Get subscription link"""
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
@@ -419,7 +419,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data == "get_qr")
-async def get_qr_code(callback: types.CallbackQuery, db: Database):
+async def get_qr_code(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
     """Get QR code for subscription"""
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
@@ -443,7 +443,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data == "status")
-async def check_status(callback: types.CallbackQuery, db: Database):
+async def check_status(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
     """Check subscription status"""
     telegram_id = callback.from_user.id
     subscription = await db.get_active_subscription(telegram_id)

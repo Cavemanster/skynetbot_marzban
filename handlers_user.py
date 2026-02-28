@@ -1,7 +1,7 @@
 """
-    marzban_client: MarzbanClient = data["marzban_client"]
-    marzban_client: MarzbanClient = data["marzban_client"]
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
+    marzban_client = callback.bot.marzban_client
+    marzban_client = callback.bot.marzban_client
 User Handlers Module
 Handles all user-facing bot commands and callbacks
 """
@@ -399,9 +399,9 @@ async def confirm_payment(callback: types.CallbackQuery, db: Database, state: FS
 
 
 @user_router.callback_query(F.data == "get_link")
-async def get_subscription_link(callback: types.CallbackQuery, db: Database, **data):
+async def get_subscription_link(callback: types.CallbackQuery, db: Database):
     """Get subscription link"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
     subscription = await db.get_active_subscription(telegram_id)
@@ -423,9 +423,9 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database, **d
 
 
 @user_router.callback_query(F.data == "get_qr")
-async def get_qr_code(callback: types.CallbackQuery, db: Database, **data):
+async def get_qr_code(callback: types.CallbackQuery, db: Database):
     """Get QR code for subscription"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
     subscription = await db.get_active_subscription(telegram_id)
@@ -448,9 +448,9 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database, **data):
 
 
 @user_router.callback_query(F.data == "status")
-async def check_status(callback: types.CallbackQuery, db: Database, **data):
+async def check_status(callback: types.CallbackQuery, db: Database):
     """Check subscription status"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     telegram_id = callback.from_user.id
     subscription = await db.get_active_subscription(telegram_id)
     

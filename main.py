@@ -116,6 +116,9 @@ async def on_startup(bot: Bot, db: Database, marzban_client: MarzbanClient, conf
     """Bot startup handler"""
     logger.info("Bot starting up...")
     
+    # Store marzban_client in bot for handlers
+    bot.marzban_client = marzban_client
+    
     # Test Marzban connection
     try:
         await marzban_client.get_system_stats()

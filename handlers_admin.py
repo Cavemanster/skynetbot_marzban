@@ -1,8 +1,8 @@
 """
-    marzban_client: MarzbanClient = data["marzban_client"]
-    marzban_client: MarzbanClient = data["marzban_client"]
-    marzban_client: MarzbanClient = data["marzban_client"]
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
+    marzban_client = callback.bot.marzban_client
+    marzban_client = callback.bot.marzban_client
+    marzban_client = callback.bot.marzban_client
 Admin Handlers Module
 Handles all admin panel commands and callbacks
 """
@@ -54,9 +54,9 @@ async def cmd_admin(message: types.Message, config: dict, db: Database):
 
 
 @admin_router.callback_query(F.data == "admin_stats")
-async def admin_statistics(callback: types.CallbackQuery, db: Database, **data):
+async def admin_statistics(callback: types.CallbackQuery, db: Database):
     """Show bot statistics"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     try:
         # Get bot stats from database
         stats = await db.get_statistics()
@@ -157,9 +157,9 @@ async def admin_view_payment(callback: types.CallbackQuery, db: Database):
 
 
 @admin_router.callback_query(F.data.startswith("admin_approve_"))
-async def admin_approve_payment(callback: types.CallbackQuery, db: Database, **data):
+async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
     """Approve payment"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     payment_id = int(callback.data.replace("admin_approve_", ""))
     payment = await db.get_payment(payment_id)
     
@@ -368,7 +368,7 @@ async def process_search(message: types.Message, state: FSMContext, db: Database
 
 
 @admin_router.callback_query(F.data.startswith("admin_user_info_"))
-async def admin_user_info(callback: types.CallbackQuery, db: Database, **data):
+async def admin_user_info(callback: types.CallbackQuery, db: Database):
     """Show detailed user info"""
     telegram_id = int(callback.data.replace("admin_user_info_", ""))
     user = await db.get_user(telegram_id)
@@ -408,9 +408,9 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database, **data):
 
 
 @admin_router.callback_query(F.data.startswith("admin_user_ban_"))
-async def admin_user_ban(callback: types.CallbackQuery, db: Database, **data):
+async def admin_user_ban(callback: types.CallbackQuery, db: Database):
     """Ban user"""
-    marzban_client: MarzbanClient = data["marzban_client"]
+    marzban_client = callback.bot.marzban_client
     telegram_id = int(callback.data.replace("admin_user_ban_", ""))
     user = await db.get_user(telegram_id)
     

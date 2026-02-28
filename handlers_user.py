@@ -243,7 +243,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 
 
 @user_router.callback_query(F.data.startswith("trial_"))
-async def activate_trial(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
+async def activate_trial(callback: types.CallbackQuery, db: Database):
     """Activate trial subscription"""
     tariff_id = callback.data.replace("trial_", "")
     
@@ -263,7 +263,7 @@ async def activate_trial(callback: types.CallbackQuery, db: Database, marzban_cl
     await activate_subscription(callback, db, tariff, marzban_client, is_trial=True)
 
 @user_router.callback_query(F.data.startswith("pay_"))
-async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext, marzban_client: MarzbanClient):
+async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
     """Initiate payment process"""
     tariff_id = callback.data.replace("pay_", "")
     
@@ -396,7 +396,7 @@ async def confirm_payment(callback: types.CallbackQuery, db: Database, state: FS
 
 
 @user_router.callback_query(F.data == "get_link")
-async def get_subscription_link(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
+async def get_subscription_link(callback: types.CallbackQuery, db: Database):
     """Get subscription link"""
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
@@ -419,7 +419,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database, mar
 
 
 @user_router.callback_query(F.data == "get_qr")
-async def get_qr_code(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
+async def get_qr_code(callback: types.CallbackQuery, db: Database):
     """Get QR code for subscription"""
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
@@ -443,7 +443,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database, marzban_clien
 
 
 @user_router.callback_query(F.data == "status")
-async def check_status(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
+async def check_status(callback: types.CallbackQuery, db: Database):
     """Check subscription status"""
     telegram_id = callback.from_user.id
     subscription = await db.get_active_subscription(telegram_id)

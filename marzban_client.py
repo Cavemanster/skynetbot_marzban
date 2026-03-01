@@ -163,7 +163,8 @@ class MarzbanClient:
 
     def get_subscription_link(self, username: str) -> str:
         """Generate subscription link for a user"""
-        prefix = self.subscription_prefix.rstrip('/') if self.subscription_prefix else self.panel_url
+        # Use panel_url directly since Marzban caches old subscription prefix
+        prefix = self.panel_url.rstrip('/')
         return f"{prefix}/sub/{username}"
 
     # System Methods

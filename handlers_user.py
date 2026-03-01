@@ -250,6 +250,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data.startswith("trial_"))
 async def activate_trial(callback: types.CallbackQuery, db: Database):
     """Activate trial subscription"""
+    marzban_client = _marzban_client
     tariff_id = callback.data.replace("trial_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
@@ -270,6 +271,7 @@ async def activate_trial(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data.startswith("pay_"))
 async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
     """Initiate payment process"""
+    marzban_client = _marzban_client
     tariff_id = callback.data.replace("pay_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:

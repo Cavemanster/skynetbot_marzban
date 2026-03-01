@@ -18,6 +18,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database import Database
 from marzban_client import MarzbanClient
+from yoomoney_client import YooMoneyClient
 from keyboards import (
     get_main_keyboard,
     get_tariffs_keyboard,
@@ -302,8 +303,8 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"💳 Оплата подписки\n\n"
         f"📦 Тариф: {tariff['name']}\n"
         f"💵 Сумма: {tariff['price']}₽\n\n"
-        f"💳 Карта: `{config.PAYMENT_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
-        f"👤 Получатель: `{config.PAYMENT_CARD_HOLDER or 'CARD HOLDER'}`\n\n"
+        f"💳 Карта: `{config.YOOMONEY_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
+        f"👤 Получатель: `{config."SkyNet MVP" or 'CARD HOLDER'}`\n\n"
         f"⚠️ Важно: В комментарии к платежу укажите:\n"
         f"🔢 `{payment_comment}`\n\n"
         f"После оплаты нажмите ✅ Подтверждаю оплату"

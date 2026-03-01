@@ -343,7 +343,8 @@ async def activate_subscription(
             username=user["marzban_username"],
             data_limit=data_limit,
             expire=expire,
-            proxies={"shadowsocks": {}, "vless": {}}
+            proxies={"shadowsocks": {}, "vless": {}},
+            inbounds={"shadowsocks": ["Shadowsocks TCP"], "vless": ["VLESS WS"]}
         )
     except Exception as e:
         logger.error(f"Failed to create Marzban user: {e}")

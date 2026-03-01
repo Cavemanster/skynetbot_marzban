@@ -452,6 +452,26 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
     await callback.answer()
 
 
+
+@user_router.callback_query(F.data == "renew_sub")
+async def renew_subscription(callback: types.CallbackQuery, db: Database, marzban_client: MarzbanClient):
+    """Renew subscription - get fresh link"""
+    telegram_id = callback.from_user.id
+    user = await db.get_user(telegram_id)
+    subscription = await db.get_active_subscription(telegram_id)
+    
+    if not user or not subscription:
+        await callback.answer("❌ Нет активной подписки", show_alert=True)
+        return
+    
+    marzban_username = user.get("marzban_username")
+    sub_link = f"https://94.176.3.195:8443/sub/{marzban_username}"
+    
+    text = "🔄 Ссылка обновлена:\n\n" + sub_link + "\n\nСкопируйте и вставьте в VPN клиент"
+    
+    await callback.message.answer(text)
+    await callback.answer()
+
 @user_router.callback_query(F.data == "status")
 async def check_status(callback: types.CallbackQuery, db: Database):
     """Check subscription status"""

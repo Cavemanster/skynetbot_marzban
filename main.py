@@ -178,6 +178,9 @@ async def error_handler(error: ErrorEvent, bot: Bot):
 
 def create_dispatcher(config: Config, db: Database, marzban_client: MarzbanClient) -> Dispatcher:
     """Create and configure dispatcher"""
+    # Set global marzban_client for handlers
+    globals._marzban_client = marzban_client
+    
     dp = Dispatcher(storage=MemoryStorage())
     
     # Add middleware for config and database (BEFORE including routers)

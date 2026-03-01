@@ -181,9 +181,9 @@ async def my_vpn(callback: types.CallbackQuery, db: Database):
 async def show_tariffs(callback: types.CallbackQuery, db: Database):
     """Show available tariffs"""
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+        tariffs_data = json.load(f)
     
-    tariffs = data.get("tariffs", [])
+    tariffs = tariffs_data.get("tariffs", [])
     
     text = "💰 Доступные тарифы:\n\n"
     for tariff in tariffs:
@@ -211,9 +211,9 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
     tariff_id = callback.data.replace("tariff_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+        tariffs_data = json.load(f)
     
-    tariff = next((t for t in data["tariffs"] if t["id"] == tariff_id), None)
+    tariff = next((t for t in tariffs_data["tariffs"] if t["id"] == tariff_id), None)
     if not tariff:
         await callback.answer("❌ Тариф не найден", show_alert=True)
         return
@@ -254,9 +254,9 @@ async def activate_trial(callback: types.CallbackQuery, db: Database):
     tariff_id = callback.data.replace("trial_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+        tariffs_data = json.load(f)
     
-    tariff = next((t for t in data["tariffs"] if t["id"] == tariff_id), None)
+    tariff = next((t for t in tariffs_data["tariffs"] if t["id"] == tariff_id), None)
     if not tariff:
         await callback.answer("❌ Тариф не найден", show_alert=True)
         return
@@ -275,9 +275,9 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
     tariff_id = callback.data.replace("pay_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+        tariffs_data = json.load(f)
     
-    tariff = next((t for t in data["tariffs"] if t["id"] == tariff_id), None)
+    tariff = next((t for t in tariffs_data["tariffs"] if t["id"] == tariff_id), None)
     if not tariff:
         await callback.answer("❌ Тариф не найден", show_alert=True)
         return

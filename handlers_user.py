@@ -336,10 +336,10 @@ async def activate_subscription(
     # Create user in Marzban
     
     data_limit = tariff.get("traffic_gb", 0) * 1024 * 1024 * 1024  # Convert to bytes
-    expire = data.get('marzban_client').calculate_expire_timestamp(tariff["duration_days"])
+    expire = _marzban_client.calculate_expire_timestamp(tariff["duration_days"])
     
     try:
-        await data.get('marzban_client').modify_user(
+        await _marzban_client.modify_user(
             username=user["marzban_username"],
             data_limit=data_limit,
             expire=expire,
@@ -361,7 +361,7 @@ async def activate_subscription(
     )
     
     # Get subscription link
-    sub_link = data.get('marzban_client').get_subscription_link(user["marzban_username"])
+    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
         f"✅ Подписка активирована!\n\n"
@@ -414,7 +414,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    sub_link = data.get('marzban_client').get_subscription_link(user["marzban_username"])
+    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
         "🔗 Ваша ссылка для подключения:\n\n"
@@ -438,7 +438,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    sub_link = data.get('marzban_client').get_subscription_link(user["marzban_username"])
+    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
     
     # Send QR code
     from aiogram.utils.keyboard import InlineKeyboardBuilder

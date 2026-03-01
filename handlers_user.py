@@ -1,7 +1,7 @@
 """
-    marzban_client = _marzban_client
-    marzban_client = _marzban_client
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
+    marzban_client = globals._marzban_client
+    marzban_client = globals._marzban_client
 User Handlers Module
 Handles all user-facing bot commands and callbacks
 """
@@ -30,7 +30,7 @@ from keyboards import (
     get_back_keyboard,
 )
 from states import TariffStates, PaymentStates
-from globals import _marzban_client
+import globals
 
 
 logger = logging.getLogger(__name__)
@@ -250,7 +250,7 @@ async def select_tariff(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data.startswith("trial_"))
 async def activate_trial(callback: types.CallbackQuery, db: Database):
     """Activate trial subscription"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     tariff_id = callback.data.replace("trial_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
@@ -271,7 +271,7 @@ async def activate_trial(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data.startswith("pay_"))
 async def initiate_payment(callback: types.CallbackQuery, db: Database, config: dict, state: FSMContext):
     """Initiate payment process"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     tariff_id = callback.data.replace("pay_", "")
     
     with open("data/tarifs.json", "r", encoding="utf-8") as f:
@@ -336,7 +336,7 @@ async def activate_subscription(
     # Create user in Marzban
     
     data_limit = tariff.get("traffic_gb", 0) * 1024 * 1024 * 1024  # Convert to bytes
-    expire = _marzban_client.calculate_expire_timestamp(tariff["duration_days"])
+    expire = globals._marzban_client.calculate_expire_timestamp(tariff["duration_days"])
     
     try:
         await _marzban_client.modify_user(
@@ -361,7 +361,7 @@ async def activate_subscription(
     )
     
     # Get subscription link
-    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
+    sub_link = globals._marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
         f"✅ Подписка активирована!\n\n"
@@ -405,7 +405,7 @@ async def confirm_payment(callback: types.CallbackQuery, db: Database, state: FS
 @user_router.callback_query(F.data == "get_link")
 async def get_subscription_link(callback: types.CallbackQuery, db: Database):
     """Get subscription link"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
     subscription = await db.get_active_subscription(telegram_id)
@@ -414,7 +414,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
+    sub_link = globals._marzban_client.get_subscription_link(user["marzban_username"])
     
     text = (
         "🔗 Ваша ссылка для подключения:\n\n"
@@ -429,7 +429,7 @@ async def get_subscription_link(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data == "get_qr")
 async def get_qr_code(callback: types.CallbackQuery, db: Database):
     """Get QR code for subscription"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     telegram_id = callback.from_user.id
     user = await db.get_user(telegram_id)
     subscription = await db.get_active_subscription(telegram_id)
@@ -438,7 +438,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
         await callback.answer("❌ Нет активной подписки", show_alert=True)
         return
     
-    sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
+    sub_link = globals._marzban_client.get_subscription_link(user["marzban_username"])
     
     # Send QR code
     from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -454,7 +454,7 @@ async def get_qr_code(callback: types.CallbackQuery, db: Database):
 @user_router.callback_query(F.data == "status")
 async def check_status(callback: types.CallbackQuery, db: Database):
     """Check subscription status"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     telegram_id = callback.from_user.id
     subscription = await db.get_active_subscription(telegram_id)
     

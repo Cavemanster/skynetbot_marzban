@@ -1,8 +1,8 @@
 """
-    marzban_client = _marzban_client
-    marzban_client = _marzban_client
-    marzban_client = _marzban_client
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
+    marzban_client = globals._marzban_client
+    marzban_client = globals._marzban_client
+    marzban_client = globals._marzban_client
 Admin Handlers Module
 Handles all admin panel commands and callbacks
 """
@@ -27,7 +27,7 @@ from keyboards import (
     get_broadcast_keyboard,
 )
 from states import AdminStates, PaymentStates
-from globals import _marzban_client
+import globals
 
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ async def cmd_admin(message: types.Message, config: dict, db: Database):
 @admin_router.callback_query(F.data == "admin_stats")
 async def admin_statistics(callback: types.CallbackQuery, db: Database):
     """Show bot statistics"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     try:
         # Get bot stats from database
         stats = await db.get_statistics()
@@ -161,7 +161,7 @@ async def admin_view_payment(callback: types.CallbackQuery, db: Database):
 @admin_router.callback_query(F.data.startswith("admin_approve_"))
 async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
     """Approve payment"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     payment_id = int(callback.data.replace("admin_approve_", ""))
     payment = await db.get_payment(payment_id)
     
@@ -195,7 +195,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
         if existing_sub:
             # Extend existing subscription
             marzban_user = await _marzban_client.get_user(user["marzban_username"])
-            new_expire = _marzban_client.calculate_expire_timestamp(
+            new_expire = globals._marzban_client.calculate_expire_timestamp(
                 tariff["duration_days"]
             )
             new_traffic = marzban_user.get("data_limit", 0) + (tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024)
@@ -223,7 +223,7 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
         )
         
         # Notify user
-        sub_link = _marzban_client.get_subscription_link(user["marzban_username"])
+        sub_link = globals._marzban_client.get_subscription_link(user["marzban_username"])
         try:
             await callback.bot.send_message(
                 payment["telegram_id"],
@@ -382,8 +382,8 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database):
     # Get info from Marzban
     try:
         marzban_user = await _marzban_client.get_user(user["marzban_username"])
-        traffic_used = _marzban_client.format_traffic(marzban_user.get("used_traffic", 0))
-        traffic_limit = _marzban_client.format_traffic(marzban_user.get("data_limit", 0))
+        traffic_used = globals._marzban_client.format_traffic(marzban_user.get("used_traffic", 0))
+        traffic_limit = globals._marzban_client.format_traffic(marzban_user.get("data_limit", 0))
         status = marzban_user.get("status", "unknown")
         expire_date = datetime.fromtimestamp(marzban_user.get("expire", 0)) if marzban_user.get("expire") else "Never"
     except Exception as e:
@@ -412,7 +412,7 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database):
 @admin_router.callback_query(F.data.startswith("admin_user_ban_"))
 async def admin_user_ban(callback: types.CallbackQuery, db: Database):
     """Ban user"""
-    marzban_client = _marzban_client
+    marzban_client = globals._marzban_client
     telegram_id = int(callback.data.replace("admin_user_ban_", ""))
     user = await db.get_user(telegram_id)
     

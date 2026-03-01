@@ -304,7 +304,7 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"📦 Тариф: {tariff['name']}\n"
         f"💵 Сумма: {tariff['price']}₽\n\n"
         f"💳 Карта: `{config.YOOMONEY_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
-        f"👤 Получатель: `{config."SkyNet MVP" or 'CARD HOLDER'}`\n\n"
+        f"👤 Получатель: SkyNet MVP\n\n"
         f"⚠️ Важно: В комментарии к платежу укажите:\n"
         f"🔢 `{payment_comment}`\n\n"
         f"После оплаты нажмите ✅ Подтверждаю оплату"

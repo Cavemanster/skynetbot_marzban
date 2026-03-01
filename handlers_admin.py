@@ -65,13 +65,13 @@ async def admin_statistics(callback: types.CallbackQuery, db: Database):
         
         # Get Marzban system stats
         try:
-            marzban_stats = await _marzban_client.get_system_stats()
+            marzban_stats = await globals._marzban_client.get_system_stats()
             marzban_text = (
                 f"\n🖥 Marzban Статистика:\n"
                 f"👥 Пользователей: {marzban_stats.get('total_user', 0)}\n"
                 f"✅ Активных: {marzban_stats.get('active_users', 0)}\n"
-                f"💾 Использовано: {_marzban_client.format_traffic(marzban_stats.get('users_used', 0))}\n"
-                f"🌐 Всего: {_marzban_client.format_traffic(marzban_stats.get('users_total', 0))}\n"
+                f"💾 Использовано: {globals._marzban_client.format_traffic(marzban_stats.get('users_used', 0))}\n"
+                f"🌐 Всего: {globals._marzban_client.format_traffic(marzban_stats.get('users_total', 0))}\n"
             )
         except Exception as e:
             logger.error(f"Failed to get Marzban stats: {e}")
@@ -194,23 +194,23 @@ async def admin_approve_payment(callback: types.CallbackQuery, db: Database):
     try:
         if existing_sub:
             # Extend existing subscription
-            marzban_user = await _marzban_client.get_user(user["marzban_username"])
+            marzban_user = await globals._marzban_client.get_user(user["marzban_username"])
             new_expire = globals._marzban_client.calculate_expire_timestamp(
                 tariff["duration_days"]
             )
             new_traffic = marzban_user.get("data_limit", 0) + (tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024)
             
-            await _marzban_client.modify_user(
+            await globals._marzban_client.modify_user(
                 user["marzban_username"],
                 data_limit=new_traffic,
                 expire=new_expire
             )
         else:
             # Create new user
-            await _marzban_client.create_user(
+            await globals._marzban_client.create_user(
                 username=user["marzban_username"],
                 data_limit=tariff.get('traffic_gb', 0) * 1024 * 1024 * 1024,
-                expire=_marzban_client.calculate_expire_timestamp(tariff["duration_days"])
+                expire=globals._marzban_client.calculate_expire_timestamp(tariff["duration_days"])
             )
         
         # Add subscription to database
@@ -381,7 +381,7 @@ async def admin_user_info(callback: types.CallbackQuery, db: Database):
     
     # Get info from Marzban
     try:
-        marzban_user = await _marzban_client.get_user(user["marzban_username"])
+        marzban_user = await globals._marzban_client.get_user(user["marzban_username"])
         traffic_used = globals._marzban_client.format_traffic(marzban_user.get("used_traffic", 0))
         traffic_limit = globals._marzban_client.format_traffic(marzban_user.get("data_limit", 0))
         status = marzban_user.get("status", "unknown")
@@ -432,7 +432,7 @@ async def admin_user_ban(callback: types.CallbackQuery, db: Database):
         await db.ban_user(telegram_id)
         # Disable user in Marzban
         try:
-            await _marzban_client.modify_user(user["marzban_username"], status="disabled")
+            await globals._marzban_client.modify_user(user["marzban_username"], status="disabled")
         except Exception as e:
             logger.error(f"Failed to disable Marzban user: {e}")
         text = f"🚫 Пользователь @{user['username']} забанен"

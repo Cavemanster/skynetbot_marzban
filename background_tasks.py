@@ -192,7 +192,7 @@ async def start_background_tasks(db: Database, marzban_client: MarzbanClient, bo
 
     # Start periodic tasks
     asyncio.create_task(periodic_tasks(db, marzban_client, bot, config))
-    asyncio.create_task(check_yoomoney_payments(db, marzban_client, bot, config))
+    # asyncio.create_task(check_yoomoney_payments)(db, marzban_client, bot, config))
 
     logger.info("Background tasks started")
 

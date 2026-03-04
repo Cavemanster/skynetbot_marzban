@@ -293,6 +293,27 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
     # Generate payment comment
     payment_comment = generate_payment_comment()
     
+    # Create YooMoney client and generate QR
+    yoomoney = YooMoneyClient(
+        card_number=config.YOOMONEY_CARD_NUMBER or "4100119471541990",
+        label=config.YOOMONEY_LABEL or "Pojertvovanie",
+        token=config.YOOMONEY_TOKEN
+    )
+    payment_link = yoomoney.generate_payment_link(tariff["price"], payment_comment)
+    
+    # Generate SBP QR code
+    import qrcode
+    from io import BytesIO
+    qr_data = yoomoney.generate_sbp_qr(tariff["price"], payment_comment)
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    photo = BytesIO()
+    img.save(photo, "PNG")
+    photo.seek(0)
+    payment_comment = generate_payment_comment()
+    
     # Create payment record
     payment_id = await db.add_payment(
         telegram_id=callback.from_user.id,
@@ -312,11 +333,9 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"После оплаты нажмите ✅ Подтверждаю оплату"
     )
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_payment_confirm_keyboard(payment_id),
-        parse_mode="Markdown"
-    )
+    await callback.message.answer(text, parse_mode="Markdown")
+    await callback.message.answer_photo(photo=photo, caption="SBP QR")
+    await callback.message.edit_reply_markup(reply_markup=get_payment_confirm_keyboard(payment_id))
     await state.set_state(PaymentStates.waiting_for_confirmation)
     await callback.answer()
 

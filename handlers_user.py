@@ -288,26 +288,16 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         await activate_subscription(callback, db, tariff, marzban_client, is_trial=tariff["is_trial"])
         return
     
-    # Generate payment comment FIRST
-    payment_comment = generate_payment_comment()
+    # Generate payment comment
     
-    # Create YooMoney client and generate payment link + QR
+    # Generate YooMoney payment link
     yoomoney = YooMoneyClient(
         card_number=config.YOOMONEY_CARD_NUMBER or "4100119471541990",
-        label=config.YOOMONEY_LABEL or "Пожертвование",
+        label=config.YOOMONEY_LABEL or "Pojertvovanie",
         token=config.YOOMONEY_TOKEN
     )
     payment_link = yoomoney.generate_payment_link(tariff["price"], payment_comment)
-    
-    # Generate SBP QR code with SAME payment comment
-            qr_data = yoomoney.generate_sbp_qr_url(tariff["price"], payment_comment)
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(qr_data)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    photo = BytesIO()
-    img.save(photo, "PNG")
-    photo.seek(0)
+    payment_comment = generate_payment_comment()
     
     # Create payment record
     payment_id = await db.add_payment(
@@ -322,15 +312,25 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         f"📦 Тариф: {tariff['name']}\n"
         f"💵 Сумма: {tariff['price']}₽\n\n"
         f"💳 Карта: `{config.YOOMONEY_CARD_NUMBER or '0000 0000 0000 0000'}`\n"
-        f"👤 Получатель: SkyNet MVP\n\n"
+        f"🏦 Получатель: SkyNet MVP
+"
+f"📝 Назначение: {config.YOOMONEY_LABEL or "Пожертвование"}
+
+"
+f"🔗 Быстрая оплата (кликните):
+{payment_link}
+
+"\n\n"
         f"⚠️ Важно: В комментарии к платежу укажите:\n"
         f"🔢 `{payment_comment}`\n\n"
         f"После оплаты нажмите ✅ Подтверждаю оплату"
     )
     
-    await callback.message.answer(text, parse_mode="Markdown")
-    await callback.message.answer_photo(photo=photo, caption="SBP QR")
-    await callback.message.edit_reply_markup(reply_markup=get_payment_confirm_keyboard(payment_id))
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_payment_confirm_keyboard(payment_id),
+        parse_mode="Markdown"
+    )
     await state.set_state(PaymentStates.waiting_for_confirmation)
     await callback.answer()
 

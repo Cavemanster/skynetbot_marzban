@@ -8,8 +8,6 @@ Handles all user-facing bot commands and callbacks
 
 import logging
 import json
-import qrcode
-from io import BytesIO
 import random
 import string
 from datetime import datetime, timedelta
@@ -290,21 +288,19 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
         await activate_subscription(callback, db, tariff, marzban_client, is_trial=tariff["is_trial"])
         return
     
-    # Generate payment comment
+    # Generate payment comment FIRST
     payment_comment = generate_payment_comment()
     
-    # Create YooMoney client and generate QR
+    # Create YooMoney client and generate payment link + QR
     yoomoney = YooMoneyClient(
         card_number=config.YOOMONEY_CARD_NUMBER or "4100119471541990",
-        label=config.YOOMONEY_LABEL or "Pojertvovanie",
+        label=config.YOOMONEY_LABEL or "Пожертвование",
         token=config.YOOMONEY_TOKEN
     )
     payment_link = yoomoney.generate_payment_link(tariff["price"], payment_comment)
     
-    # Generate SBP QR code
-    import qrcode
-    from io import BytesIO
-    qr_data = yoomoney.generate_sbp_qr(tariff["price"], payment_comment)
+    # Generate SBP QR code with SAME payment comment
+            qr_data = yoomoney.generate_sbp_qr_url(tariff["price"], payment_comment)
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(qr_data)
     qr.make(fit=True)
@@ -312,7 +308,6 @@ async def initiate_payment(callback: types.CallbackQuery, db: Database, config: 
     photo = BytesIO()
     img.save(photo, "PNG")
     photo.seek(0)
-    payment_comment = generate_payment_comment()
     
     # Create payment record
     payment_id = await db.add_payment(

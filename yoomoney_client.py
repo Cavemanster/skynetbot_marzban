@@ -26,10 +26,10 @@ class YooMoneyClient:
         """Generate QR code data for payment (ST0001 format)"""
         return f"ST0001|2|Name=SkyNet MVP|PersonalAcc={self.card_number}|Sum={amount}|Purpose={self.label} {order_id}"
     
-    def generate_sbp_qr(self, amount: int, order_id: str) -> str:
-        """Generate SBP QR code data for YooMoney"""
-        # SBP QR format for YooMoney payments
-        return f"https://qr.yoomoney.ru/transfer?patternId=card2card&recipient={self.card_number}&sum={amount}&label={order_id}&message={self.label}"
+    def generate_sbp_qr_url(self, amount: int, order_id: str) -> str:
+        """Generate simple payment URL for QR code - no API required"""
+        # Simple card-to-card payment URL
+        return f"https://yoomoney.ru/transfer/money?patternId=card2card&moneySource=account&recipient={self.card_number}&sum={amount}&label={order_id}&message={self.label}"
     
     async def check_payment(self, order_id: str, expected_amount: int) -> Dict[str, Any]:
         """Check if payment was received via YooMoney API"""

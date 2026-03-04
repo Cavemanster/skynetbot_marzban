@@ -1,21 +1,29 @@
 {
-    "tariffs": [
+    tariffs: [
         {
-            "id": "free_nl",
-            "name": "🆓 Пробный Нидерланды",
-            "price": 0,
-            "duration_days": 3,
-            "max_ips": 1,
-            "is_trial": true,
-            "location": "Netherlands"
+            id: free_nl,
+            name: 🆓 Пробный Нидерланды,
+            price: 0,
+            duration_days: 3,
+            max_ips: 1,
+            is_trial: true,
+            location: Netherlands
         },
         {
-            "id": "basic",
-            "name": "🥉 Базовый",
-            "price": 100,
-            "duration_days": 30,
-            "max_ips": 1,
-            "is_trial": false
+            id: test_1rub,
+            name: 🧪 Тестовый 1₽,
+            price: 1,
+            duration_days: 1,
+            max_ips: 1,
+            is_trial: false
+        },
+        {
+            id: basic,
+            name: 🥉 Базовый,
+            price: 100,
+            duration_days: 30,
+            max_ips: 1,
+            is_trial: false
         }
     ]
 }

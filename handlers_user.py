@@ -8,6 +8,8 @@ Handles all user-facing bot commands and callbacks
 
 import logging
 import json
+import qrcode
+from io import BytesIO
 import random
 import string
 from datetime import datetime, timedelta

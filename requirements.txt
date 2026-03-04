@@ -5,3 +5,4 @@ aiofiles>=23.2.1
 python-dotenv>=1.0.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
+qrcode[pil]>=7.4.2

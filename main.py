@@ -67,6 +67,11 @@ class Config:
         self.PAYMENT_CARD_NUMBER = os.getenv("PAYMENT_CARD_NUMBER", "")
         self.PAYMENT_CARD_HOLDER = os.getenv("PAYMENT_CARD_HOLDER", "")
         
+        # YooMoney configuration
+        self.YOOMONEY_CARD_NUMBER = os.getenv("YOOMONEY_CARD_NUMBER", "4100119471541990")
+        self.YOOMONEY_LABEL = os.getenv("YOOMONEY_LABEL", "Пожертвование")
+        self.YOOMONEY_TOKEN = os.getenv("YOOMONEY_TOKEN", "")
+        
         # Optional configuration
         self.SITE_URL = os.getenv("SITE_URL", "")
         self.TG_CHANNEL = os.getenv("TG_CHANNEL", "")
